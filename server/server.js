@@ -24,9 +24,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to database
-connectDB();
-
 // Middleware
 app.use(
   helmet({
@@ -94,9 +91,18 @@ app.use((req, res) => {
 // Error middleware (must be last)
 app.use(errorMiddleware);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📍 Base URL: http://localhost:${PORT}`);
-  console.log(`🔗 API Base: http://localhost:${PORT}/api`);
-});
+export default app;
+
+if (process.env.NODE_ENV !== 'production') {
+  connectDB()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`✅ Server running on port ${PORT}`);
+        console.log(`📍 Base URL: http://localhost:${PORT}`);
+        console.log(`🔗 API Base: http://localhost:${PORT}/api`);
+      });
+    })
+    .catch(() => {
+      process.exitCode = 1;
+    });
+}
