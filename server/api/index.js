@@ -4,10 +4,18 @@ import app from '../server.js';
 let databaseConnection;
 
 export default async function handler(request, response) {
-  const pathname = new URL(
+  const requestUrl = new URL(
     request.url,
     `https://${request.headers.host ?? 'localhost'}`
-  ).pathname;
+  );
+  const rewrittenPath = requestUrl.searchParams.get('path');
+  const pathname = rewrittenPath
+    ? `/api${rewrittenPath}`
+    : requestUrl.pathname;
+
+  if (rewrittenPath) {
+    request.url = pathname;
+  }
 
   if (pathname === '/api/health') {
     return app(request, response);
